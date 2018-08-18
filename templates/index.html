@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>温州大学校园聊天机器人-小电</title>
+	<link rel="shortcut icon" href="static/favicon.ico">
+	<link rel="stylesheet" type="text/css" href="static/css/normalize.css" />
+	<link rel="stylesheet" type="text/css" href="static/css/htmleaf-demo.css"/>
+	<link rel="stylesheet" href="static/dist/botui.min.css" />
+    <link rel="stylesheet" href="static/dist/botui-theme-default.css" />
+</head>
+<body>
+	<div class="htmleaf-container">
+		<header class="htmleaf-header">
+			<h1> 温州大学校园聊天机器人-小电<span>Wenzhou University Chatbot-EBot</span></h1>
+			<div class="htmleaf-links">
+				<a class="htmleaf-icon icon-htmleaf-home-outline" href="http://www.chenhn.club" title="个人博客" target="_blank"><span> 从头训练一个Chatbot</span></a>
+				<a class="htmleaf-icon icon-htmleaf-arrow-forward-outline" href="#" title="重新开始" target="_blank"><span> 重新开始</span></a>
+			</div>
+		</header>
+		<div class="htmleaf-content">
+			<div class="botui-app-container" id="home-demo">
+			      <bot-ui></bot-ui>
+			</div>
+		</div>
+	</div>
+    <script type="text/javascript" src="static/jquery.min.js">
+</script>
+	<script type="text/javascript" src="https://cdn.bootcss.com/vue/2.3.4/vue.min.js"></script>
+	<script src="static/dist/botui.min.js"></script>
+	<script type="text/javascript">
+		var homeBot = BotUI('home-demo');
+
+		homeBot.message.add({
+		  content: '你好！我是校园聊天机器人——小电!'
+		}).then(function () {
+		  return homeBot.message.add({
+		    delay: 800,
+		    content: '你在大学遇到的任何问题都可以问我哟~'
+		  });
+		}).then(function () {
+		  return homeBot.action.button({
+		    delay: 800,
+		    action: [{
+		      text: '好的!',
+		      value: 'sure'
+		    }, {
+		      text: '不用了!',
+		      value: 'skip'
+		    }]
+		  });
+		}).then(function (res) {
+		  if(res.value == 'sure') {
+		    tutorial();
+		  }
+		  if(res.value == 'skip') {
+		    end();
+		  }
+		});
+
+		var tutorial = function () {
+			homeBot.action.text({
+			  delay: 500,
+			  action: {
+				value: '',
+				placeholder: 'You'
+			  }
+			}).then(function (res) {
+				var mydata = {"question":res.value};
+				 $.ajax({
+				  url:"/predict",
+				  type: "POST",
+				  data: JSON.stringify(mydata),
+				  success: function(resp){
+					  homeBot.message.add({
+						  content: resp.result
+						})
+						tutorial();
+				  },
+				  error:function(resp){
+					  alert("fail")
+				  }
+			   });
+		  })
+		};
+		
+		var end = function () {
+		  homeBot.message.add({
+		    delay: 1000,
+		    content: '很高兴为你服务~希望下次再见!'
+		  });
+		};
+	</script>
+</body>
+</html>
